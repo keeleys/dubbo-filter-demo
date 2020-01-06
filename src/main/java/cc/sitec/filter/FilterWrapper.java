@@ -10,18 +10,20 @@ import java.util.List;
  * @date 2020/1/3 4:08 下午
  **/
 public class FilterWrapper {
-    private static Invoker buildChain(){
-        List<Filter> filterList = new ArrayList<>();
+    private static List<Filter> filterList = new ArrayList<>();
+    static {
         ServiceLoader.load(Filter.class).forEach(filterList::add);
-        // 最后一次啥都不做
-        Invoker last = () -> {};
-        for(int i=filterList.size()-1;i>=0;i--){
-            final Filter filter = filterList.get(i);
-            final Invoker next = last;
-            last = () -> filter.invoke(next);
-        }
-        return last;
     }
+    private static Invoker buildChain(){
+        return build(0);
+    }
+    private static Invoker build(int index) {
+        // 最后一次返回空函数
+        if(index == filterList.size()) return () -> {};
+        //Invoker的方法实现 = Filter调用invoke()
+        return ()->filterList.get(index).invoke(build(index + 1));
+    }
+
     public static void refer(){
         buildChain().invoke();
     }
