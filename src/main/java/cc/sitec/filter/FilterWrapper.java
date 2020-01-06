@@ -20,7 +20,7 @@ public class FilterWrapper {
     private static Invoker build(int index) {
         // 最后一次返回空函数
         if(index == filterList.size()) return () -> {};
-        //Invoker的方法实现 = Filter调用invoke()
+        //Invoker的方法实现 = Filter调用invoke(参数是下一个Invoker)
         return ()->filterList.get(index).invoke(build(index + 1));
     }
 
